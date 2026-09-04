@@ -15,15 +15,19 @@ ADMIN_ID = int(os.environ["ADMIN_ID"])
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(
         "👋 به Aban Unknown Bot خوش اومدی!\n\n"
-        "پیامت رو بفرست تا به صورت ناشناس برای ادمین ارسال بشه."
+        "پیامت رو همینجا بفرست تا به صورت ناشناس برای ادمین ارسال بشه."
+    )
+
+
+async def get_id(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text(
+        f"شناسه عددی تلگرام شما:\n{update.effective_user.id}"
     )
 
 
 async def receive_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     message = update.message
 
-    # فقط محتوای پیام را برای ادمین می‌فرستیم.
-    # هیچ username، نام یا User ID فرستنده ارسال نمی‌شود.
     if message.text:
         await context.bot.send_message(
             chat_id=ADMIN_ID,
@@ -59,20 +63,28 @@ async def receive_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         )
 
     else:
-        await message.reply_text("این نوع پیام فعلاً پشتیبانی نمی‌شود.")
+        await message.reply_text(
+            "❌ این نوع پیام فعلاً پشتیبانی نمی‌شود."
+        )
         return
 
-    await message.reply_text("✅ پیامت با موفقیت و به صورت ناشناس ارسال شد.")
+    await message.reply_text(
+        "✅ پیامت با موفقیت و به صورت ناشناس ارسال شد."
+    )
 
 
 def main():
     app = Application.builder().token(BOT_TOKEN).build()
 
     app.add_handler(CommandHandler("start", start))
-    app.add_handler(MessageHandler(
-        filters.ALL & ~filters.COMMAND,
-        receive_message
-    ))
+    app.add_handler(CommandHandler("id", get_id))
+
+    app.add_handler(
+        MessageHandler(
+            filters.ALL & ~filters.COMMAND,
+            receive_message
+        )
+    )
 
     app.run_polling()
 
